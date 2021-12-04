@@ -82,7 +82,7 @@ int admin() {
 }
 //함수에 대해 공부
 void result(int selection) {
-    int i = selection;
+    int i = selection; //itemN[slection]으로 하닌깐 %s인데 정수형이라고 안되서 i를 만들어줌.
     printf("================================\n");
     printf("=[주문하신 상품 %s 나왔습니다.]=\n", itemN[i]);
     printf("================================\n");
