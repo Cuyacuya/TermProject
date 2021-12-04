@@ -14,8 +14,8 @@ int money = 0; //투입한 금액
 int change = 0; //잔돈
 int selection = 0; //선택 
 int sales = 0; //전체 매출
-char option = -1; //관리자모드에서 옵션값
-char YN = 'A'; //마지막 result에 대한 값
+char option = 0; //관리자모드에서 옵션값
+char YN = 0; //마지막 result에 대한 값
 
 
 void title() {
@@ -40,23 +40,21 @@ void manual(int money) {
     printf("================================\n");
     printf("====[상품을 선택 해 주세요.]====\n");
 }
-int selectItem(int selection,int money) {
-    if (item[selection] <= 0) {
+int selectItem(int money) {
+    scanf("%d", &selection);
+    if (selection == 0) return 0;
+    selection = selection - 1; //상품의 번호와 인덱스 번호를 맞춰줌.
+    if (item[selection] < 1) {
         printf("재고 없음");
         printf("다시 선택해 주세요.");
-        return 0;
+        return selectItem(money);
     }
     else if (money < price[selection]) {
         printf("돈이 부족합니다.");
         printf("다시 선택해 주세요.");
-        return 0;
+        return selectItem(money);
     }
-    else {
-        change = money - price[selection]; //잔돈계산
-        sales += price[selection]; //총매출
-        item[selection] -= 1; //선택한 상품의 재고 -1
-        return change, sales;
-    }
+    return selection;
 }
 int admin() {
     printf("=========[ 관리자 모드 ]=======\n");
@@ -69,7 +67,7 @@ int admin() {
     while (1) {
         scanf(" %c", &option);
         if (option == 'W' || option == 'w') {
-            printf("판매 매출 : %d원", sales);
+            printf("판매 매출 : %d원\n", sales);
             return 0;
         }
         else if (option == 'E' || option == 'e') {
@@ -77,6 +75,7 @@ int admin() {
             printf("판매 매출이 초기화 되었습니다.");
             return 0;
         }
+        else if (option == 'X' || option == 'x') return 0;
         else printf("잘못된 옵션입니다. 다시 선택해주세요.");
     }
 }
@@ -92,13 +91,13 @@ void result(int selection) {
 }
 int main()
 {
-    while (1) {
-        title();
+    title();
+    printf("   돈을 넣어 주세요 : ");
+    scanf("%d", &money);
+    while(1) {
         menu();
-        printf("   돈을 넣어 주세요 : ");
-        scanf("%d", &money);
         manual(money);
-        scanf("%d", &selection);
+        selectItem(money);
         if (selection == 0) {
             printf("관리자 모드를 실행합니다.\n");
             admin();
@@ -108,8 +107,18 @@ int main()
             }
         }
         else if (1 <= selection <= 10) {
-            selection = selection - 1; //상품 번호와 인덱스가 동일하게 변경.
-            selectItem(selection, money);
+            change = money - price[selection]; //거스름돈계산
+            sales += price[selection]; //총매출
+            item[selection] -= 1; //선택한 상품의 재고 -1
+            money -= price[selection]; //자판기에 남은 돈
+            if (money < 500) { //남은 돈이 상품의 최소금액(500)보다 작으면 강제 종료
+                printf("================================\n");
+                printf("=[주문하신 상품 %s 나왔습니다.]=\n", itemN[selection]);
+                printf("================================\n");
+                printf("잔돈 : %d원입니다.\n", change);
+                printf("이용해주셔서 감사합니다.");
+                return 0;//자판기를 종료
+            }
             result(selection);
             scanf(" %c", &YN);
             if (YN == 'N' || YN == 'n') {
