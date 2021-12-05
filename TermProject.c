@@ -1,10 +1,10 @@
 //TermProject - Vending Machine
-#define _CRT_SECURE_NO_WARNINGS
-#define _CRT_SECURE_NO_DEPRECATE  
-#define _CRT_NONSTDC_NO_DEPRECATE
+#define _CRT_SECURE_NO_WARNINGS //scanf() 반환값 무시를 처리하기위한 처리문
+#define _CRT_SECURE_NO_DEPRECATE  //scanf() 반환값 무시를 처리하기위한 처리문
+#define _CRT_NONSTDC_NO_DEPRECATE //scanf() 반환값 무시를 처리하기위한 처리문
 #include <stdio.h>
-#include <conio.h>
-#include <windows.h>
+#include <conio.h> //콘솔 이용을 위한 헤더파일
+#include <windows.h> //콘솔창 크기 조잘을 위한 헤더파일
 
 //전역변수에 대해 공부
 int item[10] = { 10, 20, 15, 0, 5, 8, 10, 15, 20, 3 }; //상품별 재고
@@ -100,7 +100,7 @@ int main()
 {
     system("mode con cols=43 lines=40");//콘솔 창 크기 조절
     title();
-    printf("   돈을 넣어 주세요 : ");
+    printf("        돈을 넣어 주세요 : ");
     scanf("%d", &money);
     while(1) {
         menu();
