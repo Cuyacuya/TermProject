@@ -6,7 +6,6 @@
 #include <conio.h> //콘솔 이용을 위한 헤더파일
 #include <windows.h> //콘솔창 크기 조잘을 위한 헤더파일
 
-//전역변수에 대해 공부
 int item[10] = { 10, 20, 15, 0, 5, 8, 10, 15, 20, 3 }; //상품별 재고
 int price[10] = { 500, 500, 700, 700, 700, 700, 800, 800, 800, 1000 }; //상품별 가격
 char* itemN[11] = { "물", "불", "코카콜라", "칠성사이다", "제로콜라", "미란다", "박카스", "활명수", "핫식스", "몬스터" }; //상품별 이름
@@ -16,7 +15,6 @@ int selection = 0; //선택
 int sales = 0; //전체 매출
 char option = 0; //관리자모드에서 옵션값
 char YN = 0; //마지막 result에 대한 값
-
 
 void title() {
     printf("===========================================\n");
@@ -40,19 +38,19 @@ void manual(int money) {
     printf("===========================================\n");
     printf("==========[상품을 선택 해 주세요.]=========\n");
 }
-int selectItem(int money) {
+int selectItem() {
     scanf("%d", &selection);
     if (selection == 100) return 0; //관리자 모드로 가기위해 selectItem()을 종료
     selection = selection - 1; //상품의 번호와 인덱스 번호를 맞춰줌.
     if (item[selection] < 1) { //재고가 0개 이상인지 체크
         printf("재고 없음");
         printf("다시 선택해 주세요.");
-        return selectItem(money);
+        return selectItem();
     }
     else if (money < price[selection]) { //입력받은 돈과 상품 가격을 체크
         printf("돈이 부족합니다.");
         printf("다시 선택해 주세요.");
-        return selectItem(money);
+        return selectItem();
     }
     return selection;
 }
@@ -60,8 +58,8 @@ int payment(int selection) {
     change = money - price[selection]; //거스름돈계산
     sales += price[selection]; //총매출
     item[selection] -= 1; //선택한 상품의 재고 -1
-    money -= price[selection]; //자판기에 남은 돈
-    return change, sales, money;
+    money = change; //계속 뽑기를 할 수 있으니 money에 거스름돈(change)을ㄴ 할당
+    return change, sales;
 }
 int admin() {
     printf("==============[ 관리자 모드 ]==============\n");
@@ -86,11 +84,9 @@ int admin() {
         else printf("잘못된 옵션입니다. 다시 선택해주세요.\n");
     }
 }
-//함수에 대해 공부
-void result(int selection) {
-    int i = selection; //itemN[slection]으로 하닌깐 %s인데 정수형이라고 안되서 i를 만들어줌.
+void result() {
     printf("===========================================\n");
-    printf("=====[주문하신 상품 %5s 나왔습니다.]===\n", itemN[i]);
+    printf("=====[선택하신 상품 %5s 나왔습니다.]===\n", itemN[selection]);
     printf("===========================================\n");
     printf("=============[ 계속 뽑기 : Y ]=============\n");
     printf("=============[ 잔돈 받기 : N ]=============\n");
@@ -105,7 +101,7 @@ int main()
     while(1) {
         menu();
         manual(money);
-        selectItem(money);
+        selectItem();
         if (selection == 100) {
             printf("관리자 모드를 실행합니다.\n");
             admin();
@@ -124,7 +120,7 @@ int main()
                 printf("=======[ 이용해주셔서 감사합니다. ]========\n");
                 return 0;//자판기를 종료
             }
-            result(selection);
+            result();
             while (1) {
                 scanf(" %c", &YN);
                 if (YN == 'N' || YN == 'n') {
@@ -139,9 +135,7 @@ int main()
                 else printf("===잘못된 선택입니다. 다시 선택해주세요.===\n");
             }
         }
-        else { //10 이상의 숫자 선택시 else를 출력 안함
-            printf("잘못된 선택입니다.\n");
-        }
+        else printf("잘못된 선택입니다.\n"); //10 이상의 숫자 선택시 다시 입력받기  
     }
     return 0;
 }
