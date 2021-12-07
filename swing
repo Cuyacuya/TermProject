@@ -1,0 +1,177 @@
+//TermProject - Vending Machine
+#define _CRT_SECURE_NO_WARNINGS //scanf() 반환값 무시를 처리하기위한 처리문
+#define _CRT_SECURE_NO_DEPRECATE  //scanf() 반환값 무시를 처리하기위한 처리문
+#define _CRT_NONSTDC_NO_DEPRECATE //scanf() 반환값 무시를 처리하기위한 처리문
+#include <stdio.h>
+#include <conio.h> //콘솔 이용을 위한 헤더파일
+#include <windows.h> //콘솔창 크기 조잘을 위한 헤더파일
+#include <stdlib.h> //random 함수를 사용하기 위한 헤더 파일
+#include <time.h> //random 함수를 사용하기 위한 헤더 파일
+
+int item[10] = { 10, 20, 15, 0, 5, 8, 10, 15, 20, 3 }; //상품별 재고
+int price[10] = { 500, 500, 700, 700, 700, 700, 800, 800, 800, 1000 }; //상품별 가격
+char* itemN[11] = { "물", "불", "코카콜라", "칠성사이다", "제로콜라", "미란다", "박카스", "활명수", "핫식스", "몬스터" }; //상품별 이름
+int money = 0; //투입한 금액
+int change = 0; //잔돈
+int selection = 0; //선택 
+int sales = 0; //전체 매출
+char option = 0; //관리자모드에서 옵션값
+char YN = 0; //마지막 result에 대한 값
+
+void title() {
+    printf("===========================================\n");
+    printf("=================DCU자판기=================\n");
+    printf("===========================================\n");
+}
+void menu() {
+    for (int i = 0; i < 10; i++) {
+        if(item[i]>0)
+        printf("%2d번 | 수량 : %2d |%5s| 가격 : %4d원\n", i + 1, item[i], itemN[i], price[i]); //이름들을 오른쪽 정렬하고싶음
+        else
+            printf("%2d번 | 재고없음 |%5s| 가격 : %4d원\n", i + 1, itemN[i], price[i]); //이름들을 오른쪽 정렬하고싶음
+    }
+    printf("===========================================\n");
+}
+void manual(int money) {
+    printf("===========================================\n");
+    printf("============[현재 금액 : %5d]============\n", money);
+    printf("===========================================\n");
+    printf("===========[ 관리자 모드 : 100 ]===========\n");
+    printf("===========================================\n");
+    printf("==========[상품을 선택 해 주세요.]=========\n");
+}
+int selectItem() {
+    scanf("%d", &selection);
+    if (selection == 100) return 0; //관리자 모드로 가기위해 selectItem()을 종료
+    if (selection == 111) return 0; //흔들기 모드로 가기위해 selectItem()을 종료
+    selection = selection - 1; //상품의 번호와 인덱스 번호를 맞춰줌.
+    if (item[selection] < 1) { //재고가 0개 이상인지 체크
+        printf("재고 없음");
+        printf("다시 선택해 주세요.");
+        return selectItem();
+    }
+    else if (money < price[selection]) { //입력받은 돈과 상품 가격을 체크
+        printf("돈이 부족합니다.");
+        printf("다시 선택해 주세요.");
+        return selectItem();
+    }
+    return selection;
+}
+int payment(int selection) {
+    change = money - price[selection]; //거스름돈계산
+    sales += price[selection]; //총매출
+    item[selection] -= 1; //선택한 상품의 재고 -1
+    money = change; //계속 뽑기를 할 수 있으니 money에 거스름돈(change)을ㄴ 할당
+    return change, sales;
+}
+int admin() {
+    printf("==============[ 관리자 모드 ]==============\n");
+    printf("===========================================\n");
+    printf("=============[ 판매 매출 : W ]=============\n");
+    printf("============[ 매출 초기화 : E ]============\n");
+    printf("============[ 자판기 종료 : X ]============\n");
+    printf("===========================================\n");
+    printf("===========[옵션을 선택해주세요]===========\n");
+    while (1) {
+        scanf(" %c", &option);
+        if (option == 'W' || option == 'w') {
+            printf("판매 매출 : %d원\n", sales);
+            return 0;
+        }
+        else if (option == 'E' || option == 'e') {
+            sales = 0;
+            printf("판매 매출이 초기화 되었습니다.\n");
+            return 0;
+        }
+        else if (option == 'X' || option == 'x') return 0;
+        else printf("잘못된 옵션입니다. 다시 선택해주세요.\n");
+    }
+}
+void result() {
+    printf("===========================================\n");
+    printf("=====[선택하신 상품 %5s 나왔습니다.]===\n", itemN[selection]);
+    printf("===========================================\n");
+    printf("=============[ 계속 뽑기 : Y ]=============\n");
+    printf("=============[ 잔돈 받기 : N ]=============\n");
+    printf("===========================================\n");
+}
+void swing() { //자판기 흔들기기능
+    if (selection == 111) {
+        srand((unsigned int)time(NULL));
+        selection = rand() % 10 + 1; //무작위 상품이 선택됨.
+    }
+}
+int main()
+{
+    SetConsoleTitle(TEXT("DCU Vending machine")); //콘솔창의 이름을 지정
+    system("mode con cols=43 lines=40");//콘솔창 크기 조절
+    title();
+    printf("        돈을 넣어 주세요 : ");
+    scanf("%d", &money);
+    while(1) {
+        menu();
+        manual(money);
+            selectItem();
+        if (selection == 100) {
+            printf("관리자 모드를 실행합니다.\n");
+            admin();
+            if (option == 'X' || option == 'x') {
+                printf("자판기를 종료합니다.");
+                return 0; //자판기를 종료
+            }
+        }
+        else if (selection == 111) { //흔들기 기능
+            swing();
+            printf("%d", selection);
+            result();
+            while (1) {
+                scanf(" %c", &YN);
+                if (YN == 'N' || YN == 'n') {
+                    printf("===========================================\n");
+                    printf("========[ 잔돈 : %4d원입니다. ==========\n", change);
+                    printf("=======[ 이용해주셔서 감사합니다. ]========\n");
+                    return 0;//자판기를 종료
+                }
+                if (YN == 'Y' || YN == 'y') {
+                    break; //자판기를 계속 이용
+                }
+                else printf("===잘못된 선택입니다. 다시 선택해주세요.===\n");
+            }
+            if (money < 500) { //남은 돈이 상품의 최소금액(500)보다 작으면 강제 종료
+                printf("===========================================\n");
+                printf("=====[주문하신 상품 %5s 나왔습니다.]=====\n", itemN[selection]);
+                printf("===========================================\n");
+                printf("==========[ 잔돈 : %4d원입니다. ]=========\n", change);
+                printf("=======[ 이용해주셔서 감사합니다. ]========\n");
+                return 0;//자판기를 종료
+            }
+        }
+        else if (1 <= selection <= 10) {
+            payment(selection);
+            if (money < 500) { //남은 돈이 상품의 최소금액(500)보다 작으면 강제 종료
+                printf("===========================================\n");
+                printf("=====[주문하신 상품 %5s 나왔습니다.]=====\n", itemN[selection]);
+                printf("===========================================\n");
+                printf("==========[ 잔돈 : %4d원입니다. ]=========\n", change);
+                printf("=======[ 이용해주셔서 감사합니다. ]========\n");
+                return 0;//자판기를 종료
+            }
+            result();
+            while (1) {
+                scanf(" %c", &YN);
+                if (YN == 'N' || YN == 'n') {
+                    printf("===========================================\n");
+                    printf("========[ 잔돈 : %4d원입니다. ==========\n", change);
+                    printf("=======[ 이용해주셔서 감사합니다. ]========\n");
+                    return 0;//자판기를 종료
+                }
+                if (YN == 'Y' || YN == 'y') {
+                    break; //자판기를 계속 이용
+                }
+                else printf("===잘못된 선택입니다. 다시 선택해주세요.===\n");
+            }
+        }
+        else printf("잘못된 선택입니다.\n"); //10 이상의 숫자 선택시 다시 입력받기  
+    }
+    return 0;
+}
